@@ -1,10 +1,33 @@
 import { Button, Grid, Loading, Text, Card } from "@nextui-org/react";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
+import { useEffect } from "react";
 import { ArrowLeftSquare } from "react-iconly";
+import {
+  NoteProvider,
+  useNoteContext,
+} from "~/components/lectures/NoteContextProvider";
+import Note from "~/components/lectures/note";
 import { api } from "~/utils/api";
 
+const DynamicTranscriptClient = dynamic(
+  () => import("~/components/lectures/running/TranscriptNoteEditor"),
+  {
+    ssr: false,
+  }
+);
+
 export default function Index() {
+  return (
+    <NoteProvider>
+      <SpecificLecturePage></SpecificLecturePage>
+    </NoteProvider>
+  );
+}
+
+function SpecificLecturePage() {
   const router = useRouter();
+  const useNote = useNoteContext();
 
   const lectureId = router.query.lectureId;
 
@@ -23,11 +46,34 @@ export default function Index() {
     }
   );
 
-  const { data: transcript, isLoading: isLoadingTranscript } = api.example.getTranscript.useQuery(
-    {
+  // useEffect(() => {
+  //   console.log("working..?");
+  //   if (note || !isLoadingNote) {
+  //     console.log("useEffect note");
+  //     console.log(note);
+  //     const noteContent = note?.content?.toString() || "";
+  //     useNote.getEditorSerializedJson(noteContent);
+  //   }
+  // }, [note]);
+
+  const { data: transcript, isLoading: isLoadingTranscript } =
+    api.example.getTranscript.useQuery({
       lectureId: (lectureId as string) ?? "",
-    }
-  )
+    });
+
+  // const content = useNote.getSerializedJson() || "";
+
+  const updateNote = api.example.updateNote.useMutation();
+
+  const updateNoteCallback = () => {
+    const content = useNote.getSerializedJson() || "";
+    console.log('updatenotecallback called');
+    console.log(content);
+    updateNote.mutate({
+      content: (content as string) ?? "",
+      lectureId: (lectureId as string) ?? "",
+    });
+  };
 
   if (isLoadingLecture || !lecture) {
     return <Loading />;
@@ -37,7 +83,7 @@ export default function Index() {
     return <Loading />;
   }
 
-  if(isLoadingTranscript || !transcript) {
+  if (isLoadingTranscript || !transcript) {
     return <Loading />;
   }
 
@@ -53,7 +99,7 @@ export default function Index() {
   return (
     <main className="flex min-h-screen flex-col items-start justify-start bg-gradient-to-b from-[#3b017d] to-[#151515]">
       <div className="container flex flex-col items-center justify-center gap-2.5 px-4 py-16">
-        <div className="pl-10 flex w-full w-screen max-w-full flex-row justify-start">
+        <div className="flex w-full w-screen max-w-full flex-row justify-start pl-10">
           <Button size="md" color="secondary" onClick={navToHome}>
             <div className="flex flex-row items-center gap-2">
               <ArrowLeftSquare
@@ -74,17 +120,21 @@ export default function Index() {
       <div className="flex w-full w-screen max-w-full">
         <Grid.Container gap={2} justify="center">
           <Grid xs={5}>
-            <div className="flex w-full flex-col gap-5">
+            <div className="flex max-h-[550px] w-full flex-col gap-5">
               <Text h3>Note</Text>
               <Card
                 variant="shadow"
                 borderWeight="none"
-                css={{ padding: "20px" }}
+                css={{ height: "550px", padding: "20px" }}
               >
-                <Text>1 of 2</Text>
+                <div className="overflow-y-auto">
+                  {note && <Note isEditable={true} data={note} />}
+                </div>
               </Card>
               <div className="w-2/4">
-                <Button color="success">Save</Button>
+                <Button onClick={updateNoteCallback} color="success">
+                  Save
+                </Button>
               </div>
             </div>
           </Grid>

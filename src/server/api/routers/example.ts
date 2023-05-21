@@ -77,6 +77,15 @@ export const exampleRouter = createTRPCRouter({
       });
     }),
 
+  updateNote: protectedProcedure
+    .input(z.object({ content: z.string(), lectureId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      return await ctx.prisma.note.update({
+        where: { lectureId: input.lectureId },
+        data: { content: input.content },
+      });
+    }),
+
   // editLectureTitle: protectedProcedure.input(z.object({ lectureId: z.string() })).mutation(async({ctx, input}) => {
   //   return await ctx.prisma.lecture.update({
   //     where: {lectureId: input.lectureId},
