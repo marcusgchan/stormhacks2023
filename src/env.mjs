@@ -23,6 +23,7 @@ export const env = createEnv({
     // Add `.min(1) on ID and SECRET if you want to make sure they're not empty
     GITHUB_CLIENT_ID: z.string(),
     GITHUB_CLIENT_SECRET: z.string(),
+    OPENAI_API_KEY: z.string(),
   },
 
   /**
@@ -46,6 +47,7 @@ export const env = createEnv({
     NEXTAUTH_URL: process.env.NEXTAUTH_URL,
     GITHUB_CLIENT_ID: process.env.GITHUB_CLIENT_ID,
     GITHUB_CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET,
+    OPENAI_API_KEY: process.env.OPENAI_API_KEY,
     NEXT_PUBLIC_SPEECHLY_APP_ID: process.env.NEXT_PUBLIC_SPEECHLY_APP_ID,
   },
 });
