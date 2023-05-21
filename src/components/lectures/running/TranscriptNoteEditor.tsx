@@ -17,7 +17,7 @@ SpeechRecognition.applyPolyfill(SpeechlySpeechRecognition);
 export default function TranscriptVrClient() {
   const { transcript, listening, browserSupportsSpeechRecognition } =
     useSpeechRecognition();
-  const { updateWords, words, shouldHighlight, setIsListening } =
+  const { updateWords, words, setIsListening } =
     useNoteContext();
 
   const startListening = () =>
@@ -62,16 +62,7 @@ export default function TranscriptVrClient() {
             <div className="border-sm flex min-h-[20rem] flex-1 flex-wrap items-start gap-1 border-2">
               {words.length > 0
                 ? words.map(({ word, id, importance }, index) => {
-                    return (
-                      <span
-                        key={id}
-                        className={`${
-                          shouldHighlight(index) ? "bg-red-500" : ""
-                        }`}
-                      >
-                        {word}
-                      </span>
-                    );
+                    return <span key={id}>{word}</span>;
                   })
                 : "No transcript yet."}
             </div>
