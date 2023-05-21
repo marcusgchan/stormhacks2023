@@ -3,7 +3,7 @@
 import { Button, Grid, Loading, Text, Card } from "@nextui-org/react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ArrowLeftSquare, Play, CloseSquare, TimeCircle } from "react-iconly";
 import {
   NoteProvider,
@@ -12,32 +12,19 @@ import {
 import Note from "~/components/lectures/note";
 import TranscriptVrClient from "~/components/lectures/running/TranscriptNoteEditor";
 import { api } from "~/utils/api";
+import { RouterOutputs } from "~/utils/api";
 
-const DynamicTest = dynamic(() => import("~/components/lectures/DynamicTest"), {
-  ssr: false,
-});
-
-export default function Index() {
-  return (
-    <NoteProvider>
-      <DynamicTest />
-      {/* <RunningLecture></RunningLecture> */}
-    </NoteProvider>
-  );
-}
-
-function RunningLecture() {
+export default function DynamicTest() {
   const router = useRouter();
   const noteCtx = useNoteContext();
   const speechlyThingRef = useRef<any>(null);
-  const [lectureState, setLectureState] = useState();
 
   const navToHome = () => {
     router.push("/lectures");
   };
 
   const lectureId = router.query.lectureId;
-  // console.log("lectureId", lectureId);
+  console.log("lectureId", lectureId);
 
   const { data: lecture, isLoading: isLoadingLecture } =
     api.example.getLecture.useQuery(
@@ -47,7 +34,7 @@ function RunningLecture() {
       { refetchOnWindowFocus: false }
     );
 
-  console.log("lecture state", lectureState);
+  console.log("keywords", lecture?.keywords);
 
   const { data: note, isLoading: isLoadingNote } = api.example.getNote.useQuery(
     {
@@ -55,22 +42,10 @@ function RunningLecture() {
     }
   );
 
-  // useEffect(() => {
-  //   console.log("working..?");
-  //   if (note || !isLoadingNote) {
-  //     console.log("useEffect note");
-  //     console.log(note);
-  //     const noteContent = note?.content?.toString() || "";
-  //     useNote.getEditorSerializedJson(noteContent);
-  //   }
-  // }, [note]);
-
   const { data: transcript, isLoading: isLoadingTranscript } =
     api.example.getTranscript.useQuery({
       lectureId: (lectureId as string) ?? "",
     });
-
-  // const content = useNote.getSerializedJson() || "";
 
   const updateNote = api.example.updateNote.useMutation();
 
@@ -102,12 +77,6 @@ function RunningLecture() {
   //   return <Loading />;
   // }
 
-  // console.log("lecture");
-  // console.log(lecture);
-
-  // console.log("note");
-  // console.log(note);
-
   // console.log("transcript");
   // console.log(transcript);
 
@@ -117,13 +86,25 @@ function RunningLecture() {
     // transcript
     const content = noteCtx.getSerializedJson() || "";
     const transcript = JSON.stringify(noteCtx.words);
-    const nodeToWordIndex = JSON.stringify(noteCtx.nodeToWordIndex);
+    const nodeToWordIndex = JSON.stringify(
+      Object.fromEntries(noteCtx.nodeToWordIndex)
+    );
     saveLecture.mutate({
       lectureId,
       note: content,
       words: transcript,
       noteWordMapping: nodeToWordIndex,
     });
+  };
+
+  const importanceStyler = (importance: number) => {
+    if (importance == 0) {
+      return "text-white text-opacity-50";
+    } else if (importance == 1) {
+      return "text-white text-opacity-50";
+    } else {
+      return "text-white text-opacity-90 font-bold";
+    }
   };
 
   function displayButtons() {
@@ -189,21 +170,21 @@ function RunningLecture() {
             </div>
           </Grid>
           <Grid xs={5}>
-            <div className="flex max-h-[550px] w-full flex-col gap-5 overflow-y-auto">
+            <div className="flex max-h-[550px] w-full flex-col gap-5">
               <Text h3>Transcription</Text>
               <Card
                 variant="shadow"
                 borderWeight="none"
                 css={{ height: "550px", padding: "20px" }}
               >
-                <div className="flex max-h-[550px] flex-1 flex-wrap items-start gap-1 overflow-y-auto">
-                  <TranscriptVrClient
-                    ref={speechlyThingRef}
-                    keywords={JSON.parse(
-                      JSON.stringify(lecture.keywords || "{}")
-                    )}
-                  ></TranscriptVrClient>
-                </div>
+                <TranscriptVrClient
+                  ref={speechlyThingRef}
+                  keywords={
+                    typeof lecture.keywords === "string"
+                      ? JSON.parse(lecture.keywords)
+                      : JSON.parse(JSON.stringify(lecture.keywords))
+                  }
+                ></TranscriptVrClient>
               </Card>
             </div>
           </Grid>

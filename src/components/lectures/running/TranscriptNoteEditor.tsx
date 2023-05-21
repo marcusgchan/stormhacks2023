@@ -17,12 +17,9 @@ const SpeechlySpeechRecognition = createSpeechlySpeechRecognition(appId);
 SpeechRecognition.applyPolyfill(SpeechlySpeechRecognition);
 
 const TranscriptVrClient = forwardRef((props, ref) => {
-  console.log(props.keywords);
   const { transcript, listening, browserSupportsSpeechRecognition } =
     useSpeechRecognition();
   const { updateWords, words, setIsListening } = useNoteContext();
-
-  const getLecture = api.example.getLecture.useQuery();
 
   // const startListening = () =>
   //   SpeechRecognition.startListening({ continuous: true }).then(() =>
@@ -51,9 +48,8 @@ const TranscriptVrClient = forwardRef((props, ref) => {
     if (!transcript.length) return;
     updateWords(
       transcript.split(" ").map((word) => {
-        console.log(
-          word + props.keywords.hasOwnProperty(word) + props.keywords[word]
-        );
+        console.log(props.keywords);
+        console.log(typeof props.keywords);
         return {
           id: uuidv4(),
           word,
@@ -93,10 +89,10 @@ const TranscriptVrClient = forwardRef((props, ref) => {
   };
 
   return (
-    <div className="flex w-full flex-col gap-2">
-      <h2>Transcript - {displayRecordingState()}</h2>
-      <div className="flex h-full flex-col gap-2">
-        <div className="flex flex-1 flex-wrap items-start gap-1">
+    <div className="flex max-h-[550px] w-full flex-col gap-2 overflow-y-auto">
+      {/*<h2>Transcript - {displayRecordingState()}</h2>*/}
+      <div className="flex h-full max-h-[550px] flex-col gap-2 overflow-y-auto">
+        <div className="flex max-h-[550px] flex-1 flex-wrap items-start gap-1 overflow-y-auto">
           {words.length > 0
             ? words.map(({ word, id, importance }, index) => {
                 return (

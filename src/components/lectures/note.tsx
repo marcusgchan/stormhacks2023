@@ -114,7 +114,7 @@ export default function Editor({
           <RichTextPlugin
             contentEditable={<ContentEditable contentEditable={isEditable} />}
             placeholder={
-              <div className="absolute left-[0.5rem] top-[0.5rem]">
+              <div className="pointer-events-none absolute left-[0.5rem] top-[0.5rem]">
                 Enter some text...
               </div>
             }

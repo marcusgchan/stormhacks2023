@@ -18,6 +18,8 @@ export type NoteContext = {
   getSerializedJson: () => string;
   getEditorSerializedJson: (serializedJson: string) => void;
   listening: boolean;
+  nodeToWordIndex: Map<string, number>;
+  setWorkKeyToNodeMap: (map: Map<string, number>) => void;
 };
 
 const NoteContext = createContext<NoteContext>({} as NoteContext);
@@ -37,7 +39,7 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
   const editorStateRef = useRef<string>("");
   const nodeToWordIndex = useRef(new Map<string, number>());
   const [words, setWords] = useState<Word[]>([]);
-  const isListeningRef = useRef(false);
+  const [listening, setListening] = useState(false);
 
   const updateSerializedJson = (serializedJson: string) => {
     serializedJsonRef.current = serializedJson;
@@ -53,7 +55,7 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
   };
 
   const setIsListening = (isListening: boolean) => {
-    isListeningRef.current = isListening;
+    setListening(isListening);
   };
 
   const updateWords = useCallback(
@@ -64,7 +66,7 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
   );
 
   const addWordKeyToNode = (nodeKey: string) => {
-    if (!isListeningRef.current) return;
+    if (!listening) return;
 
     const lastWord = words.at(-1);
     if (!nodeToWordIndex.current.has(nodeKey) && lastWord !== undefined) {
@@ -83,8 +85,11 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
     return temp;
   };
 
+  const setWorkKeyToNodeMap = (map: Map<string, number>) => {
+    nodeToWordIndex.current = map;
+  };
+
   const removeKeywordFromNode = (nodeKey: string) => {
-    console.log("removing node", nodeKey);
     setWords(
       words.map((word) => {
         if (word.id === nodeKey) {
@@ -108,7 +113,9 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
         updateSerializedJson,
         getSerializedJson,
         getEditorSerializedJson,
-        listening: isListeningRef.current,
+        listening,
+        nodeToWordIndex: nodeToWordIndex.current,
+        setWorkKeyToNodeMap,
       }}
     >
       {children}

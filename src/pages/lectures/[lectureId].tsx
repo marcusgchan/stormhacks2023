@@ -75,6 +75,29 @@ function SpecificLecturePage() {
     });
   };
 
+  const importanceStyler = (importance: number) => {
+    if (importance == 0) {
+      return "text-white text-opacity-50";
+    } else if (importance == 1) {
+      return "text-white text-opacity-50";
+    } else {
+      return "text-white text-opacity-90 font-bold";
+    }
+  };
+
+  const noteCtx = useNoteContext();
+  const words = noteCtx.words;
+
+  useEffect(() => {
+    console.log("sfasf");
+    if (!transcript?.words || !note?.nodeWordMapping) return;
+    print("dsk;afjds;afjk");
+    noteCtx.updateWords(JSON.parse(transcript.words));
+    noteCtx.setWorkKeyToNodeMap(
+      new Map<string, number>(Object.entries(JSON.parse(note.nodeWordMapping)))
+    );
+  }, [transcript?.words]);
+
   if (isLoadingLecture || !lecture) {
     return <Loading />;
   }
@@ -87,19 +110,19 @@ function SpecificLecturePage() {
     return <Loading />;
   }
 
-  console.log("lecture");
-  console.log(lecture);
+  const wordsToIter = JSON.parse(transcript.words);
+  console.log(note.nodeWordMapping);
+  console.log(JSON.parse(note.nodeWordMapping));
+  const nodeToWordMap = new Map<string, number>(
+    Object.entries(JSON.parse(note.nodeWordMapping))
+  );
 
-  console.log("note");
-  console.log(note);
-
-  console.log("transcript");
-  console.log(transcript);
+  console.log("Map", nodeToWordMap);
 
   return (
     <main className="flex min-h-screen flex-col items-start justify-start bg-gradient-to-b from-[#3b017d] to-[#151515]">
       <div className="container flex flex-col items-center justify-center gap-2.5 px-4 py-16">
-        <div className="flex w-full w-screen max-w-full flex-row justify-start pl-10">
+        <div className="flex w-full max-w-full flex-row justify-start pl-10">
           <Button size="md" color="secondary" onClick={navToHome}>
             <div className="flex flex-row items-center gap-2">
               <ArrowLeftSquare
@@ -144,9 +167,22 @@ function SpecificLecturePage() {
               <Card
                 variant="shadow"
                 borderWeight="none"
-                css={{ padding: "20px" }}
+                css={{ height: "550px", padding: "20px" }}
               >
-                <Text>2 of 2</Text>
+                <div className="flex max-h-[550px] flex-1 flex-wrap items-start gap-1 overflow-y-auto">
+                  {wordsToIter.length > 0
+                    ? wordsToIter.map(({ word, id, importance }, index) => {
+                        return (
+                          <span
+                            key={id}
+                            className={`${importanceStyler(importance)}`}
+                          >
+                            {word}
+                          </span>
+                        );
+                      })
+                    : "No transcript yet."}
+                </div>
               </Card>
             </div>
           </Grid>

@@ -87,87 +87,92 @@ export const keywordRouter = createTRPCRouter({
       const result = await getGptKeywords(input.topic);
       return result;
     }),
-  getKeywords: protectedProcedure
-    .input(z.object({ lectureId: z.string(), topic: z.string() }))
-    .mutation(async ({ ctx, input }) => {
-      // The main keywords object that will contain all keywords
-      // The value is either 0,1,2 where 2 is the most important
-      const keyWords: { [key: string]: number } = {};
-
-      const openai = new OpenAIApi(configuration);
-
-      const response: string = (
-        await openai.createCompletion({
-          model: "text-davinci-003",
-          prompt: `Give me a link to a wikipedia article of a topic very unrelated to ${input.topic} that is at least 500 words long`,
-          max_tokens: 50,
-        })
-      ).data.choices[0].text;
-
-      const unrelatedWikiLink = response;
-
-      //Attempts to find topic in wiki article
-      const topic = input.topic.replaceAll(" ", "_");
-      axios
-        .get(`https://en.wikipedia.org/wiki/${topic}`)
-        .then(async ({ data }: { data: string }) => {
-          const $ = cheerio.load(data);
-          const paragraphs = $("p")
-            .map((_, elem) => {
-              const txt = $(elem);
-              return txt.text().replaceAll(/\n/g, "");
-            })
-            .toArray();
-          // console.log(paragraphs);
-
-          const resultArray = paragraphs
-            .toString()
-            .toLowerCase()
-            .replaceAll(/[^a-zA-Z\s]/g, "")
-            .split(" ")
-            .filter((word) => word !== "");
-
-          resultArray.forEach((word) => {
-            word = word.replaceAll(/'/g, "");
-            keyWords[word] = 2;
-          });
-
-          //Gets unrelated words
-          const unrelatedWords = await getUnrelatedWords(unrelatedWikiLink);
-          //Get GPT keywords
-          const gptKeywords = await getGptKeywords(input.topic);
-
-          addUnrelatedWordsToKeywords(keyWords, unrelatedWords);
-          addRelatedWordsToKeywords(keyWords, gptKeywords);
-
-          console.log(keyWords);
-
-          return await ctx.prisma.lecture.update({
-            data: {
-              keywords: JSON.stringify(keyWords),
-            },
-            where: {
-              id: input.lectureId,
-            },
-          });
-        })
-        .catch(async () => {
-          //Gets unrelated words
-          const unrelatedWords = await getUnrelatedWords(unrelatedWikiLink);
-          //Get GPT keywords
-          const gptKeywords = await getGptKeywords(input.topic);
-
-          addUnrelatedWordsToKeywords(keyWords, unrelatedWords);
-          addRelatedWordsToKeywords(keyWords, gptKeywords);
-
-          return await ctx.prisma.lecture.update({
-            data: {
-              keywords: JSON.stringify(keyWords).toLowerCase(),
-            },
-            where: {
-              id: input.lectureId,
-            },
-          });
-        });
-    }),
 });
+
+export const getKeywords = async (ctx, input) => {
+  // The main keywords object that will contain all keywords
+  // The value is either 0,1,2 where 2 is the most important
+  const keyWords: { [key: string]: number } = {};
+
+  const openai = new OpenAIApi(configuration);
+
+  const response: string = (
+    await openai.createCompletion({
+      model: "text-davinci-003",
+      prompt: `Give me a link to a wikipedia article of a topic very unrelated to ${input.topic} that is at least 500 words long`,
+      max_tokens: 50,
+    })
+  ).data.choices[0].text;
+
+  const unrelatedWikiLink = response;
+
+  //Attempts to find topic in wiki article
+  const topic = input.topic.replaceAll(" ", "_");
+  await axios
+    .get(`https://en.wikipedia.org/wiki/${topic}`)
+    .then(async ({ data }: { data: string }) => {
+      console.log("Topic found");
+      // console.log(data);
+      const $ = cheerio.load(data);
+      const paragraphs = $("p")
+        .map((_, elem) => {
+          const txt = $(elem);
+          return txt.text().replaceAll(/\n/g, "");
+        })
+        .toArray();
+      // console.log(paragraphs);
+
+      const resultArray = paragraphs
+        .toString()
+        .toLowerCase()
+        .replaceAll(/[^a-zA-Z\s]/g, "")
+        .split(" ")
+        .filter((word) => word !== "");
+
+      resultArray.forEach((word) => {
+        word = word.replaceAll(/'/g, "");
+        keyWords[word] = 2;
+      });
+
+      //Gets unrelated words
+      const unrelatedWords = await getUnrelatedWords(unrelatedWikiLink);
+      //Get GPT keywords
+      const gptKeywords = await getGptKeywords(input.topic);
+
+      addUnrelatedWordsToKeywords(keyWords, unrelatedWords);
+      addRelatedWordsToKeywords(keyWords, gptKeywords);
+
+      // console.log(keyWords);
+
+      return await ctx.prisma.lecture.update({
+        data: {
+          keywords: JSON.stringify(keyWords),
+        },
+        where: {
+          id: input.lectureId,
+        },
+      });
+    })
+    .catch(async () => {
+      console.log("Topic not found in wiki article");
+      //Gets unrelated words
+      const unrelatedWords = await getUnrelatedWords(unrelatedWikiLink);
+      //Get GPT keywords
+      const gptKeywords = await getGptKeywords(input.topic);
+
+      addUnrelatedWordsToKeywords(keyWords, unrelatedWords);
+      addRelatedWordsToKeywords(keyWords, gptKeywords);
+      console.log(keyWords, JSON.stringify(keyWords).toLowerCase());
+
+      return await ctx.prisma.lecture.update({
+        data: {
+          keywords: JSON.stringify(keyWords).toLowerCase(),
+        },
+        where: {
+          id: input.lectureId,
+        },
+      });
+    });
+};
+
+const sleep = (timer: number) => new Promise((res) => setTimeout(res, timer));

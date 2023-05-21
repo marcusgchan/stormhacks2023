@@ -18,27 +18,9 @@ export default function Index() {
   const [sessionName, setSessionName] = useState("");
   const [topicName, setTopicName] = useState("");
 
-  let lecture;
-
-  const getKeywords = api.keyword.getKeywords.useMutation({
-    async onMutate(data) {
-      console.log("get keywords");
-      console.log(lecture);
-      if (lecture) {
-        await startSession(lecture);
-      }
-    },
-  });
-
   const createLecture = api.example.createLecture.useMutation({
-    onSuccess(data) {
-      getKeywords.mutate({
-        lectureId: data.id,
-        topic: data.topic,
-      });
-      console.log(data);
-      console.log(data.id);
-      lecture = data.id || "";
+    async onSuccess(data) {
+      await startSession(data.id);
     },
   });
 

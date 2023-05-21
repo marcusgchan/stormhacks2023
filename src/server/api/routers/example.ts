@@ -7,6 +7,8 @@ import {
   protectedProcedure,
 } from "~/server/api/trpc";
 
+import { getKeywords } from "./keywords";
+
 export const exampleRouter = createTRPCRouter({
   hello: publicProcedure
     .input(z.object({ text: z.string() }))
@@ -44,9 +46,11 @@ export const exampleRouter = createTRPCRouter({
   getLecture: protectedProcedure
     .input(z.object({ lectureId: z.string() }))
     .query(async ({ ctx, input }) => {
-      return await ctx.prisma.lecture.findFirst({
+      const lecture = await ctx.prisma.lecture.findFirst({
         where: { userId: ctx.session.user.id, id: input.lectureId },
       });
+      console.log(lecture);
+      return lecture;
     }),
 
   getNote: protectedProcedure
@@ -68,25 +72,20 @@ export const exampleRouter = createTRPCRouter({
   createLecture: protectedProcedure
     .input(z.object({ topicName: z.string(), titleName: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      try {
-        const res = await ctx.prisma.lecture.create({
-          data: {
-            topic: input.topicName,
-            title: input.titleName,
-            keywords: "",
-            userId: ctx.session.user.id,
-          },
-        });
-        // await ctx.prisma.lecture.update({
-        //   where: { id: res.id },
-        //   data: { keywords: "" },
-        // });
-        return res;
-      } catch (e) {
-        console.log(e);
-      }
-
-      return;
+      const res = await ctx.prisma.lecture.create({
+        data: {
+          topic: input.topicName,
+          title: input.titleName,
+          keywords: "",
+          userId: ctx.session.user.id,
+        },
+      });
+      await getKeywords(ctx, { lectureId: res.id, topic: res.topic });
+      // await ctx.prisma.lecture.update({
+      //   where: { id: res.id },
+      //   data: { keywords: "" },
+      // });
+      return res;
     }),
 
   updateNote: protectedProcedure
