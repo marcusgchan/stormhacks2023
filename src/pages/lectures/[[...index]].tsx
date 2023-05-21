@@ -54,7 +54,7 @@ export default function Index() {
         <Navbar height="100px" isBordered variant="static">
           <Navbar.Brand>
             <Text h2 color="inherit" hideIn="xs">
-              App Name
+              StudyAI
             </Text>
           </Navbar.Brand>
           <Navbar.Content css={{ backgroundColor: "transparent" }}>

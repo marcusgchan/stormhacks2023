@@ -88,15 +88,15 @@ function SpecificLecturePage() {
   const noteCtx = useNoteContext();
   const words = noteCtx.words;
 
-  useEffect(() => {
-    console.log("sfasf");
-    if (!transcript?.words || !note?.nodeWordMapping) return;
-    print("dsk;afjds;afjk");
-    noteCtx.updateWords(JSON.parse(transcript.words));
-    noteCtx.setWorkKeyToNodeMap(
-      new Map<string, number>(Object.entries(JSON.parse(note.nodeWordMapping)))
-    );
-  }, [transcript?.words]);
+  // useEffect(() => {
+  //   console.log("sfasf");
+  //   if (!transcript?.words || !note?.nodeWordMapping) return;
+  //   print("dsk;afjds;afjk");
+  //   noteCtx.updateWords(JSON.parse(transcript.words));
+  //   noteCtx.setWorkKeyToNodeMap(
+  //     new Map<string, number>(Object.entries(JSON.parse(note.nodeWordMapping)))
+  //   );
+  // }, [transcript?.words]);
 
   if (isLoadingLecture || !lecture) {
     return <Loading />;
