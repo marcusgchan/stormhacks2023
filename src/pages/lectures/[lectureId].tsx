@@ -53,7 +53,7 @@ export default function Index() {
   return (
     <main className="flex min-h-screen flex-col items-start justify-start bg-gradient-to-b from-[#3b017d] to-[#151515]">
       <div className="container flex flex-col items-center justify-center gap-2.5 px-4 py-16">
-        <div className="flex w-full w-screen max-w-full flex-row justify-start">
+        <div className="pl-10 flex w-full w-screen max-w-full flex-row justify-start">
           <Button size="md" color="secondary" onClick={navToHome}>
             <div className="flex flex-row items-center gap-2">
               <ArrowLeftSquare
