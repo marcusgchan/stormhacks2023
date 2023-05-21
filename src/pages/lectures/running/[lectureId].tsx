@@ -1,4 +1,5 @@
 import dynamic from "next/dynamic";
+import { NoteProvider } from "~/components/lectures/NoteContextProvider";
 
 const DynamicTranscriptVrClient = dynamic(
   () => import("~/components/lectures/running/TranscriptNoteEditor"),
@@ -8,5 +9,9 @@ const DynamicTranscriptVrClient = dynamic(
 );
 
 export default function Index() {
-  return <DynamicTranscriptVrClient />;
+  return (
+    <NoteProvider>
+      <DynamicTranscriptVrClient />
+    </NoteProvider>
+  );
 }

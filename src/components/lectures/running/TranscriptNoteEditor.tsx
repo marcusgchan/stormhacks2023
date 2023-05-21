@@ -6,12 +6,17 @@ import SpeechRecognition, {
   useSpeechRecognition,
 } from "react-speech-recognition";
 import { env } from "~/env.mjs";
-import { useEffect, useMemo, useRef } from "react";
+import {
+    useEffect,
+  useMemo,
+} from "react";
 import { v4 as uuidv4 } from "uuid";
+import { useNoteContext } from "../NoteContextProvider";
 
 const appId = env.NEXT_PUBLIC_SPEECHLY_APP_ID;
 const SpeechlySpeechRecognition = createSpeechlySpeechRecognition(appId);
 SpeechRecognition.applyPolyfill(SpeechlySpeechRecognition);
+
 
 export default function TranscriptVrClient() {
   const { transcript, listening, browserSupportsSpeechRecognition } =
@@ -20,6 +25,11 @@ export default function TranscriptVrClient() {
   const startListening = () =>
     SpeechRecognition.startListening({ continuous: true });
   const stopListening = () => SpeechRecognition.stopListening();
+
+  const noteCtx = useNoteContext();
+
+  useEffect(() => {
+  });
 
   const filteredWords = useMemo(() => {
     return transcript.split(" ").map((word) => {

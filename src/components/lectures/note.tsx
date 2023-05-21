@@ -53,7 +53,7 @@ function onChange(editorState: EditorState) {
     const root = $getRoot();
     const selection = $getSelection();
 
-    //console.log(root, selection);
+    console.log(root, selection);
   });
 }
 
@@ -103,7 +103,11 @@ export default function Editor({ isEditable }: { isEditable: boolean }) {
         <LexicalComposer initialConfig={initialConfig}>
           <RichTextPlugin
             contentEditable={<ContentEditable contentEditable={isEditable} />}
-            placeholder={<div className="absolute top-[0.5rem] left-[0.5rem]">Enter some text...</div>}
+            placeholder={
+              <div className="absolute left-[0.5rem] top-[0.5rem]">
+                Enter some text...
+              </div>
+            }
             ErrorBoundary={LexicalErrorBoundary}
           />
 
@@ -117,6 +121,7 @@ export default function Editor({ isEditable }: { isEditable: boolean }) {
           <LinkPlugin />
           <ExportPlugin />
           <MarkdownShortcutPlugin transformers={TRANSFORMERS} />
+          <TranscriptKeyPlugin />
         </LexicalComposer>
       </div>
     </>
@@ -133,6 +138,7 @@ function ExportPlugin() {
         console.log(json);
       }}
     >
+    2
       serialize
     </button>
   );
@@ -141,11 +147,8 @@ function ExportPlugin() {
 function TranscriptKeyPlugin() {
   const [editor] = useLexicalComposerContext();
   useEffect(() => {
-    editor.registerNodeTransform(TextNode, (node) => {
-      console.log("test");
-      if (node.getWordKey() === undefined) {
-        node.setWordKey("test");
-      }
+    return editor.registerMutationListener(TextNode, (node) => {
+      console.log(node);
     });
   });
 
