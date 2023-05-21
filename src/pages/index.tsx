@@ -1,14 +1,150 @@
 import { type NextPage } from "next";
+import React, { useState, useEffect, useMemo } from "react";
 import Head from "next/head";
-import Link from "next/link";
 import { signIn, signOut, useSession } from "next-auth/react";
-
 import { api } from "~/utils/api";
-import { Container, Row, Col, Text, Card } from "@nextui-org/react";
+import { Container, Row, Col, Grid, Text, Card } from "@nextui-org/react";
 import { useRouter } from "next/router";
 
 const Home: NextPage = () => {
-  const hello = api.example.hello.useQuery({ text: "from tRPC" });
+  const examples1 = [
+    {
+      text: "In mathematics an integral is the continuous analog of a sum which is used to calculate areas volumes and their generalizations",
+      importance: 0,
+    },
+    {
+      text: "An atom is a particle that consists of a nucleus of protons and neutrons surrounded by a cloud of electrons",
+      importance: 0,
+    },
+  ];
+
+  const examples2 = useMemo(
+    () => [
+      [
+        { text: "In ", importance: 0 },
+        { text: "mathematics ", importance: 1 },
+        { text: "an ", importance: 0 },
+        { text: "integral ", importance: 2 },
+        { text: "is ", importance: 0 },
+        { text: "the ", importance: 0 },
+        { text: "continuous ", importance: 1 },
+        { text: "analog ", importance: 2 },
+        { text: "of ", importance: 0 },
+        { text: "a ", importance: 0 },
+        { text: "sum ", importance: 1 },
+        { text: "which ", importance: 0 },
+        { text: "is ", importance: 0 },
+        { text: "used ", importance: 0 },
+        { text: "to ", importance: 0 },
+        { text: "calculate ", importance: 1 },
+        { text: "areas ", importance: 2 },
+        { text: "volumes ", importance: 2 },
+        { text: "and ", importance: 0 },
+        { text: "their ", importance: 0 },
+        { text: "generalizations", importance: 2 },
+      ],
+      [
+        { text: "An ", importance: 0 },
+        { text: "atom ", importance: 2 },
+        { text: "is ", importance: 0 },
+        { text: "a ", importance: 0 },
+        { text: "particle ", importance: 2 },
+        { text: "that ", importance: 0 },
+        { text: "consists ", importance: 0 },
+        { text: "of ", importance: 0 },
+        { text: "a ", importance: 0 },
+        { text: "nucleus ", importance: 2 },
+        { text: "of ", importance: 0 },
+        { text: "protons ", importance: 2 },
+        { text: "and ", importance: 0 },
+        { text: "neutrons ", importance: 2 },
+        { text: "surrounded ", importance: 0 },
+        { text: "by ", importance: 0 },
+        { text: "a ", importance: 0 },
+        { text: "cloud ", importance: 1 },
+        { text: "of ", importance: 0 },
+        { text: "electrons", importance: 2 },
+      ],
+    ],
+    []
+  );
+
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [sentenceIndex, setSentenceIndex] = useState(0);
+  const [sentenceArray, setSentenceArray] = useState<
+    { text: string; importance: number }[]
+  >([]);
+
+  useEffect(() => {
+    const foo = examples2[currentIndex];
+    if (!foo) return;
+
+    if (sentenceIndex < foo.length) {
+      const timerId = setTimeout(() => {
+        const arr = examples2[currentIndex];
+        if (arr !== undefined) {
+          setSentenceArray((prevArr) => {
+            const word = arr[sentenceIndex];
+            if (word) {
+              return [...prevArr, word];
+            }
+            return prevArr;
+          });
+          setSentenceIndex((prevIndex) => prevIndex + 1);
+        }
+      }, 500);
+      return () => clearInterval(timerId);
+    }
+    if (sentenceIndex === foo.length - 1) {
+      setCurrentIndex((cur) => cur + 1);
+    }
+  }, [
+    sentenceIndex,
+    setSentenceArray,
+    setSentenceIndex,
+    currentIndex,
+    examples2,
+  ]);
+
+  const ExampleItem = ({ text }: { text: string }) => {
+    return (
+      <Card variant="shadow" borderWeight={undefined} css={{ h: "$60" }}>
+        <Card.Body>
+          <Text h6 size={20} css={{ mt: 0 }}>
+            <i>{text}</i>
+          </Text>
+        </Card.Body>
+      </Card>
+    );
+  };
+
+  const ImportanceStyler = ({ importance }: { importance: number }) => {
+    if (importance == 0) {
+      return "text-white text-opacity-50";
+    } else if (importance == 1) {
+      return "text-white text-opacity-50";
+    } else {
+      return "text-white text-opacity-90 font-bold";
+    }
+  };
+
+  const TypewriterCard = () => {
+    return (
+      <Card variant="shadow" borderWeight={undefined} css={{ h: "$60" }}>
+        <Card.Body>
+          <Text h6 size={20} css={{ mt: 0 }}>
+            {sentenceArray.map((word, id) => (
+              <span key={id} className={ImportanceStyler(word)}>
+                {word.text}
+              </span>
+            ))}
+          </Text>
+        </Card.Body>
+      </Card>
+    );
+  };
+
+  const leftArray = examples1[currentIndex];
 
   return (
     <>
@@ -20,23 +156,17 @@ const Home: NextPage = () => {
       <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#3b017d] to-[#151515]">
         <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16 ">
           <h1 className="text-5xl font-extrabold tracking-tight text-white sm:text-[5rem]">
-            Application Name
+            StudyBuddy.ai
           </h1>
 
-          <Container gap={0}>
-            <Row gap={1}>
-              <Col>
-                <div className="flex justify-center">
-                  <Text>Before Text</Text>
-                </div>
-              </Col>
-              <Col>
-                <div className="flex justify-center">
-                  <Text>After Text</Text>
-                </div>
-              </Col>
-            </Row>
-          </Container>
+          <Grid.Container gap={2} justify="center">
+            <Grid xs={4}>
+              {leftArray && <ExampleItem text={leftArray.text} />}
+            </Grid>
+            <Grid xs={4}>
+              <TypewriterCard />
+            </Grid>
+          </Grid.Container>
 
           <div className="flex flex-col items-center gap-2">
             <p className="text-2xl text-white">Short Description</p>
@@ -47,8 +177,6 @@ const Home: NextPage = () => {
     </>
   );
 };
-
-export default Home;
 
 const AuthShowcase: React.FC = () => {
   const { data: sessionData } = useSession();
@@ -68,15 +196,12 @@ const AuthShowcase: React.FC = () => {
       </p>
       <button
         className="rounded-full bg-white/10 px-10 py-3 font-semibold text-white no-underline transition hover:bg-white/20"
-        onClick={
-          sessionData
-            ? () => void signOut()
-            : () =>
-                void signIn()
-        }
+        onClick={sessionData ? () => void signOut() : () => void signIn()}
       >
         {sessionData ? "Sign out" : "Sign in"}
       </button>
     </div>
   );
 };
+
+export default Home;
