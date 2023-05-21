@@ -17,6 +17,7 @@ export type NoteContext = {
   updateSerializedJson: (serializedJson: string) => void;
   getSerializedJson: () => string;
   getEditorSerializedJson: (serializedJson: string) => void;
+  listening: boolean;
 };
 
 const NoteContext = createContext<NoteContext>({} as NoteContext);
@@ -40,16 +41,16 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
 
   const updateSerializedJson = (serializedJson: string) => {
     serializedJsonRef.current = serializedJson;
-  }
+  };
 
   const getSerializedJson = () => {
     return serializedJsonRef.current || "";
-  }
+  };
 
   const getEditorSerializedJson = (serializedJson: string) => {
     editorStateRef.current = serializedJson;
     updateSerializedJson(editorStateRef.current);
-  }
+  };
 
   const setIsListening = (isListening: boolean) => {
     isListeningRef.current = isListening;
@@ -107,6 +108,7 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
         updateSerializedJson,
         getSerializedJson,
         getEditorSerializedJson,
+        listening: isListeningRef.current,
       }}
     >
       {children}

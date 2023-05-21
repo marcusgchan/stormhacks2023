@@ -68,13 +68,25 @@ export const exampleRouter = createTRPCRouter({
   createLecture: protectedProcedure
     .input(z.object({ topicName: z.string(), titleName: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      return await ctx.prisma.lecture.create({
-        data: {
-          topic: input.topicName,
-          title: input.titleName,
-          userId: ctx.session.user.id,
-        },
-      });
+      try {
+        const res = await ctx.prisma.lecture.create({
+          data: {
+            topic: input.topicName,
+            title: input.titleName,
+            keywords: "",
+            userId: ctx.session.user.id,
+          },
+        });
+        // await ctx.prisma.lecture.update({
+        //   where: { id: res.id },
+        //   data: { keywords: "" },
+        // });
+        return res;
+      } catch (e) {
+        console.log(e);
+      }
+
+      return;
     }),
 
   updateNote: protectedProcedure
@@ -94,4 +106,29 @@ export const exampleRouter = createTRPCRouter({
   //     }
   //   })
   // })
+
+  saveLecture: protectedProcedure
+    .input(
+      z.object({
+        lectureId: z.string(),
+        note: z.string(),
+        noteWordMapping: z.string(),
+        words: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      await ctx.prisma.note.create({
+        data: {
+          content: input.note,
+          nodeWordMapping: input.noteWordMapping,
+          lectureId: input.lectureId,
+        },
+      });
+      await ctx.prisma.transcript.create({
+        data: {
+          lectureId: input.lectureId,
+          words: input.words,
+        },
+      });
+    }),
 });

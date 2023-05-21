@@ -67,7 +67,7 @@ function SpecificLecturePage() {
 
   const updateNoteCallback = () => {
     const content = useNote.getSerializedJson() || "";
-    console.log('updatenotecallback called');
+    console.log("updatenotecallback called");
     console.log(content);
     updateNote.mutate({
       content: (content as string) ?? "",

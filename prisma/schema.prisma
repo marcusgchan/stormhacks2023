@@ -81,6 +81,8 @@ model Lecture {
   topic String
   title String
 
+  keywords Json?
+
   userId String
   user   User   @relation(fields: [userId], references: [id])
 
@@ -102,8 +104,9 @@ model Transcript {
 }
 
 model Note {
-  id      String @id @default(cuid())
-  content Json
+  id              String @id @default(cuid())
+  content         Json
+  nodeWordMapping Json
 
   lectureId String  @unique
   lecture   Lecture @relation(fields: [lectureId], references: [id])
