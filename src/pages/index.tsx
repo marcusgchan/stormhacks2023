@@ -16,6 +16,14 @@ const Home: NextPage = () => {
       text: "An atom is a particle that consists of a nucleus of protons and neutrons surrounded by a cloud of electrons",
       importance: 0,
     },
+    {
+      text: "In botany a fruit is the seed-bearing structure in flowering plants that is formed from the ovary after flowering",
+      importance: 0,
+    },
+    {
+      text: "The HyperText Markup Language or HTML is the standard markup language for documents designed to be displayed in a web browser",
+      importance: 0,
+    },
   ];
 
   const examples2 = useMemo(
@@ -65,6 +73,50 @@ const Home: NextPage = () => {
         { text: "of ", importance: 0 },
         { text: "electrons", importance: 2 },
       ],
+      [
+        { text: "In ", importance: 0 },
+        { text: "botany ", importance: 2 },
+        { text: "a ", importance: 0 },
+        { text: "fruit ", importance: 2 },
+        { text: "is ", importance: 0 },
+        { text: "the ", importance: 0 },
+        { text: "seed-bearing ", importance: 2 },
+        { text: "structure ", importance: 1 },
+        { text: "in ", importance: 0 },
+        { text: "flowering ", importance: 2 },
+        { text: "plants ", importance: 1 },
+        { text: "that ", importance: 0 },
+        { text: "is ", importance: 0 },
+        { text: "formed ", importance: 0 },
+        { text: "from  ", importance: 0 },
+        { text: "the ", importance: 0 },
+        { text: "ovary ", importance: 2 },
+        { text: "after ", importance: 0 },
+        { text: "flowering", importance: 2 },
+      ],
+      [
+        { text: "The ", importance: 0 },
+        { text: "HyperText ", importance: 2 },
+        { text: "Markup ", importance: 2 },
+        { text: "Language ", importance: 2 },
+        { text: "or ", importance: 0 },
+        { text: "HTML ", importance: 2 },
+        { text: "is ", importance: 0 },
+        { text: "the ", importance: 0 },
+        { text: "standard ", importance: 1 },
+        { text: "markup ", importance: 2 },
+        { text: "language ", importance: 2 },
+        { text: "for ", importance: 0 },
+        { text: "documents ", importance: 2 },
+        { text: "designed ", importance: 0 },
+        { text: "to  ", importance: 0 },
+        { text: "be ", importance: 0 },
+        { text: "displayed ", importance: 1 },
+        { text: "in ", importance: 0 },
+        { text: "a ", importance: 0 },
+        { text: "web ", importance: 2 },
+        { text: "browser", importance: 2 },
+      ],
     ],
     []
   );
@@ -74,6 +126,20 @@ const Home: NextPage = () => {
   const [sentenceArray, setSentenceArray] = useState<
     { text: string; importance: number }[]
   >([]);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentIndex((prevIndex) =>
+        prevIndex === examples1.length - 1 ? 0 : prevIndex + 1
+      );
+      setSentenceIndex(0);
+      setSentenceArray([]);
+    }, 11000);
+
+    return () => {
+      clearInterval(timer);
+    };
+  }, []);
 
   useEffect(() => {
     const foo = examples2[currentIndex];
@@ -92,7 +158,7 @@ const Home: NextPage = () => {
           });
           setSentenceIndex((prevIndex) => prevIndex + 1);
         }
-      }, 500);
+      }, 250);
       return () => clearInterval(timerId);
     }
     if (sentenceIndex === foo.length - 1) {
@@ -169,7 +235,18 @@ const Home: NextPage = () => {
           </Grid.Container>
 
           <div className="flex flex-col items-center gap-2">
-            <p className="text-2xl text-white">Short Description</p>
+            <p className="text-xl text-white">
+              As our world becomes more digitally immersed, the attention span
+              of humans has taken a toll due to the distractions that come with
+              our digital world. One of the biggest effects that digital devices
+              have are on students during classes. Our goal at StudyAI is to
+              help solve this by creating an app, not only targeted towards
+              students with ADHD, but to help all students that may have an
+              attention deficiency in class. Our solution integrates artificial
+              intelligence and an engaging UI with the students classroom
+              experience so that they can find greater focus and generate notes
+              that have direct correlations to the class transcriptions.
+            </p>
             <AuthShowcase />
           </div>
         </div>
