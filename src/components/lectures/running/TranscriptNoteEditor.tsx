@@ -6,10 +6,7 @@ import SpeechRecognition, {
   useSpeechRecognition,
 } from "react-speech-recognition";
 import { env } from "~/env.mjs";
-import {
-    useEffect,
-  useMemo,
-} from "react";
+import { useEffect, useMemo } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { useNoteContext } from "../NoteContextProvider";
 
@@ -17,25 +14,26 @@ const appId = env.NEXT_PUBLIC_SPEECHLY_APP_ID;
 const SpeechlySpeechRecognition = createSpeechlySpeechRecognition(appId);
 SpeechRecognition.applyPolyfill(SpeechlySpeechRecognition);
 
-
 export default function TranscriptVrClient() {
   const { transcript, listening, browserSupportsSpeechRecognition } =
     useSpeechRecognition();
+  const { updateWords, words, shouldHighlight, setIsListening } =
+    useNoteContext();
 
   const startListening = () =>
-    SpeechRecognition.startListening({ continuous: true });
-  const stopListening = () => SpeechRecognition.stopListening();
-
-  const noteCtx = useNoteContext();
+    SpeechRecognition.startListening({ continuous: true }).then(() =>
+      setIsListening(true)
+    );
+  const stopListening = () =>
+    SpeechRecognition.stopListening().then(() => setIsListening(false));
 
   useEffect(() => {
-  });
-
-  const filteredWords = useMemo(() => {
-    return transcript.split(" ").map((word) => {
-      return { id: uuidv4(), word, importance: 0 };
-    });
-  }, [transcript]);
+    updateWords(
+      transcript.split(" ").map((word) => {
+        return { id: uuidv4(), word, importance: 0 };
+      })
+    );
+  }, [transcript, updateWords]);
 
   if (!browserSupportsSpeechRecognition) {
     return <span>Browser doesn't support speech recognition.</span>;
@@ -61,8 +59,21 @@ export default function TranscriptVrClient() {
         <div className="flex w-full flex-col gap-2">
           <h2>Transcript - {displayRecordingState()}</h2>
           <div className="flex h-full flex-col gap-2">
-            <div className="border-sm min-h-[20rem] flex-1 border-2">
-              {transcript.length ? transcript : "No transcript yet."}
+            <div className="border-sm flex min-h-[20rem] flex-1 flex-wrap items-start gap-1 border-2">
+              {words.length > 0
+                ? words.map(({ word, id, importance }, index) => {
+                    return (
+                      <span
+                        key={id}
+                        className={`${
+                          shouldHighlight(index) ? "bg-red-500" : ""
+                        }`}
+                      >
+                        {word}
+                      </span>
+                    );
+                  })
+                : "No transcript yet."}
             </div>
             <div className="flex gap-2">
               {!listening && transcript.length === 0 && (

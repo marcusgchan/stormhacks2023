@@ -1,14 +1,22 @@
-import { useState, useContext, createContext, useRef } from "react";
+import {
+  useState,
+  useContext,
+  createContext,
+  useRef,
+  useCallback,
+} from "react";
+import { v4 as uuidv4 } from "uuid";
 
 export type NoteContext = {
   words: Word[];
   updateWords: (words: Word[]) => void;
-  addWordKeyToNode: (nodeId: string) => void;
-  shouldHighlight: (wordId: string) => boolean;
-  removeWordKeyToNode: (nodeId: string) => void;
-} | null;
+  addWordKeyToNode: (nodeeKey: string) => void;
+  shouldHighlight: (index: number) => boolean;
+  removeKeywordFromNode: (nodeKey: string) => void;
+  setIsListening: (isListening: boolean) => void;
+};
 
-const NoteContext = createContext<NoteContext>(null);
+const NoteContext = createContext<NoteContext>({} as NoteContext);
 
 export function useNoteContext() {
   return useContext(NoteContext);
@@ -21,30 +29,52 @@ type Word = {
 };
 
 export function NoteProvider({ children }: { children: React.ReactNode }) {
-  const wordKeyToNode = useRef(new Map<string, string>());
+  const nodeToWordIndex = useRef(new Map<string, number>());
   const [words, setWords] = useState<Word[]>([]);
+  const isListeningRef = useRef(false);
 
-  const updateWords = (words: Word[]) => {
-    setWords(words);
+  const setIsListening = (isListening: boolean) => {
+    isListeningRef.current = isListening;
   };
 
-  const addWordKeyToNode = (nodeId: string) => {
+  const updateWords = useCallback(
+    (words: Word[]) => {
+      setWords(words);
+    },
+    [setWords]
+  );
+
+  const addWordKeyToNode = (nodeKey: string) => {
+    if (!isListeningRef.current) return;
+
     const lastWord = words.at(-1);
-    if (!wordKeyToNode.current.has(nodeId) && lastWord !== undefined) {
-      wordKeyToNode.current.set(lastWord.id, nodeId);
+    if (!nodeToWordIndex.current.has(nodeKey) && lastWord !== undefined) {
+      nodeToWordIndex.current.set(nodeKey, words.length - 1);
     }
   };
 
-  const shouldHighlight = (wordId: string) => wordKeyToNode.current.has(wordId);
-
-  const removeWordKeyToNode = (nodeId: string) => {
-    const updatedWordKeyToNode = new Map<string, string>();
-    for (const [key, value] of wordKeyToNode.current.entries()) {
-      if (value !== nodeId) {
-        updatedWordKeyToNode.set(key, value);
+  const shouldHighlight = (index: number) => {
+    let temp = false;
+    for (const value of nodeToWordIndex.current.values()) {
+      if (value === index) {
+        temp = true;
+        break;
       }
     }
-    wordKeyToNode.current = updatedWordKeyToNode;
+    return temp;
+  };
+
+  const removeKeywordFromNode = (nodeKey: string) => {
+    console.log("removing node", nodeKey);
+    setWords(
+      words.map((word) => {
+        if (word.id === nodeKey) {
+          return { ...word, key: uuidv4() };
+        }
+        return word;
+      })
+    );
+    nodeToWordIndex.current.delete(nodeKey);
   };
 
   return (
@@ -54,7 +84,8 @@ export function NoteProvider({ children }: { children: React.ReactNode }) {
         updateWords,
         addWordKeyToNode,
         shouldHighlight,
-        removeWordKeyToNode,
+        removeKeywordFromNode,
+        setIsListening,
       }}
     >
       {children}

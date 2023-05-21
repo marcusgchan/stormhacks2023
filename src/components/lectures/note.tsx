@@ -32,6 +32,7 @@ import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { TreeView } from "@lexical/react/LexicalTreeView";
 import { NodeKey } from "lexical";
+import { useNoteContext } from "./NoteContextProvider";
 
 const theme = {
   root: "p-2 border-slate-500 border-2 rounded h-auto min-h-[200px] focus:outline-none focus-visible:border-black w-full",
@@ -53,7 +54,7 @@ function onChange(editorState: EditorState) {
     const root = $getRoot();
     const selection = $getSelection();
 
-    console.log(root, selection);
+    //console.log(root, selection);
   });
 }
 
@@ -138,7 +139,6 @@ function ExportPlugin() {
         console.log(json);
       }}
     >
-    2
       serialize
     </button>
   );
@@ -146,9 +146,17 @@ function ExportPlugin() {
 
 function TranscriptKeyPlugin() {
   const [editor] = useLexicalComposerContext();
+  const noteCtx = useNoteContext();
+
   useEffect(() => {
-    return editor.registerMutationListener(TextNode, (node) => {
-      console.log(node);
+    return editor.registerMutationListener(TextNode, (idMutation) => {
+      for (const [key, value] of idMutation.entries()) {
+        if (value === "created") {
+          noteCtx?.addWordKeyToNode(key);
+        } else if (value === "destroyed") {
+          noteCtx?.removeKeywordFromNode(key);
+        }
+      }
     });
   });
 
