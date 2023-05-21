@@ -48,7 +48,9 @@ export default function TranscriptVrClient() {
     return "Not recording";
   };
 
-  const handleSave = () => {};
+  const handleSave = () => {
+    // Save note word map and transcript to database
+  };
 
   return (
     <Grid.Container>
@@ -69,7 +71,7 @@ export default function TranscriptVrClient() {
             <div className="flex gap-2">
               {!listening && transcript.length === 0 && (
                 <button onClick={startListening}>Start</button>
-              )}
+               )}
               {listening && <button onClick={stopListening}>Pause</button>}
               {!listening && transcript.length > 0 && (
                 <button onClick={startListening}>Resume</button>
