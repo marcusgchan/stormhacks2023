@@ -18,7 +18,11 @@ export default function Index() {
   const [sessionName, setSessionName] = useState("");
   const [topicName, setTopicName] = useState("");
 
-  const createLecture = api.example.createLecture.useMutation();
+  const createLecture = api.example.createLecture.useMutation({
+    async onSuccess(data) {
+      await startSession(data.id);
+    },
+  });
 
   const handleTitle = (e: React.ChangeEvent<FormElement>) => {
     setSessionName(e.target.value);
@@ -36,6 +40,11 @@ export default function Index() {
   };
 
   const router = useRouter();
+
+  const startSession = async (sessionId: string) => {
+    console.log("routing!");
+    await router.push("/lectures/running/" + sessionId);
+  };
 
   const goBack = () => {
     router.push("/lectures");

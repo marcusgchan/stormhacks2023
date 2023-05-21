@@ -82,10 +82,13 @@ function onError(error: Error) {
   throw error;
 }
 
-export default function Editor({ isEditable, data }: { isEditable: boolean, data: NonNullable<RouterOutputs>["example"]["getNote"] }) {
-  const useNoteCtx = useNoteContext();
-  // console.log(JSON.parse(useNoteCtx.getSerializedJson()));
-  console.log(data?.content);
+export default function Editor({
+  isEditable,
+  data,
+}: {
+  isEditable: boolean;
+  data: RouterOutputs["example"]["getNote"] | undefined;
+}) {
   const initialConfig = {
     namespace: "MyEditor",
     editorState: data?.content,
@@ -111,7 +114,7 @@ export default function Editor({ isEditable, data }: { isEditable: boolean, data
           <RichTextPlugin
             contentEditable={<ContentEditable contentEditable={isEditable} />}
             placeholder={
-              <div className="absolute left-[0.5rem] top-[0.5rem]">
+              <div className="pointer-events-none absolute left-[0.5rem] top-[0.5rem]">
                 Enter some text...
               </div>
             }
