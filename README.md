@@ -1,28 +1,25 @@
-# Create T3 App
+# StudyAI
+![image](https://github.com/marcusgchan/study-ai/assets/47471007/c892d6d1-cb19-4a66-860b-2afe537d6989)
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+## Inspiration
+As our world becomes more digitally immersed, the attention span of humans has taken a toll due to the distractions that come with our digital world. One of the biggest affects that digital devices have are on students during classes. Our goal at StudyAI is to help solve this by creating an app, not only targeted towards students with ADHD, but to help any type of students that may have an attention deficiency in class. The solution we provide, is a way that integrates digital technology into students' devices so that they can focus in class while having an engaging UI to help them pay attention better and generate notes that have direct correlations to the class transcriptions.
 
-## What's next? How do I make an app with this?
+## What it does
+StudyAI, performs speech-to-text transcriptions that contains highlighted keywords through an AI generated keyword algorithm. Additionally, provides note-taking features that contain lexical formatting (e.g. indents, bullet points, etc.) to give end users accessibility to write down notes in a parallel manner, with no interferences.
 
-We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
+## How we built it
+We utilized the [T3 Stack](https://create.t3.gg/), a full-stack type safety technology stack, to build our user authentication, frontend UI, and backend CRUD operations of our application. Additionally, we used AI and the web-scraping of various documents to generate keywords based on the user's topic. With those keywords, we classified words spoken by a lecturer identified by our speech-to-text pipeline and formatted them in a understandable way.
 
-If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
+## Challenges we ran into
+One challenge that we ran into was that the library we used for creating a text editor was in beta,  resulting in very limited documentation. To overcome this problem, we had to experiment a lot with the code and increase our patience!
 
-- [Next.js](https://nextjs.org)
-- [NextAuth.js](https://next-auth.js.org)
-- [Prisma](https://prisma.io)
-- [Tailwind CSS](https://tailwindcss.com)
-- [tRPC](https://trpc.io)
+## Accomplishments that we're proud of
+We're proud of completing a full-functional web application with various technologies that we had no prior experience with in a tight deadline.
 
-## Learn More
+## What we learned
+We learned how to use speech-to-text APIs, generating keywords from various topics, and integrating a text editor to allow for accessible note taking. 
 
-To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
-
-- [Documentation](https://create.t3.gg/)
-- [Learn the T3 Stack](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available) — Check out these awesome tutorials
-
-You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
-
-## How do I deploy this?
-
-Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+## What's next for Study AI
+- create additional features according to our clients feedback
+- improve responsiveness of our app
+- linking note editor text to transcript generation
